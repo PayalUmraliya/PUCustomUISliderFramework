@@ -37,7 +37,6 @@
         [slider setMaximumTrackImage:trackImage forState:UIControlStateNormal];
     });
     
-    UIImage *thumbImage = nil;
     if(img == nil)
     {
         CAShapeLayer *shapeLayer = [CAShapeLayer layer];
@@ -51,49 +50,59 @@
         [thumb renderInContext:UIGraphicsGetCurrentContext()];
         UIImage *thumbImage = UIGraphicsGetImageFromCurrentImageContext();
         thumbImage = [self circularScaleAndCropImage:thumbImage frame:thumbframe];
+        [slider setThumbImage:thumbImage forState:UIControlStateNormal];
+        [slider setThumbImage:thumbImage forState:UIControlStateHighlighted];
         
     }
     else
     {
-        thumbImage = [self circularScaleAndCropImage:img frame:thumbframe];
+        UIImage *thumbImage = [self circularScaleAndCropImage:img frame:thumbframe];
+        [slider setThumbImage:thumbImage forState:UIControlStateNormal];
+        [slider setThumbImage:thumbImage forState:UIControlStateHighlighted];
     }
-    [slider setThumbImage:thumbImage forState:UIControlStateNormal];
-    [slider setThumbImage:thumbImage forState:UIControlStateHighlighted];
+    
         
 }
+
+//+ (UIImage*)circularImageWithImage:(UIImage*)inputImage :(UIColor *) borderColor :(CGFloat)borderWidth
+//{
+//    CGRect rect = (CGRect){ .origin=CGPointZero, .size=inputImage.size };
+//    UIGraphicsBeginImageContextWithOptions(rect.size, NO, inputImage.scale); {
+//        [borderColor setFill];
+//        [[UIBezierPath bezierPathWithOvalInRect:rect] fill];
+//
+//        CGRect interiorBox = CGRectInset(rect, borderWidth, borderWidth);
+//        UIBezierPath *interior = [UIBezierPath bezierPathWithOvalInRect:interiorBox];
+//        [interior addClip];
+//        [inputImage drawInRect:rect];
+//    }
+//    UIImage *outputImage = UIGraphicsGetImageFromCurrentImageContext();
+//    UIGraphicsEndImageContext();
+//    return outputImage;
+//}
+
 + (UIImage*)circularScaleAndCropImage:(UIImage*)image frame:(CGRect)frame {
    
     UIGraphicsBeginImageContextWithOptions(CGSizeMake(frame.size.width, frame.size.height), NO, 0.0);
     CGContextRef context = UIGraphicsGetCurrentContext();
-   
     CGFloat imageWidth = image.size.width;
     CGFloat imageHeight = image.size.height;
     CGFloat rectWidth = frame.size.width;
     CGFloat rectHeight = frame.size.height;
-    
-    
     CGFloat scaleFactorX = rectWidth/imageWidth;
     CGFloat scaleFactorY = rectHeight/imageHeight;
-    
-    
     CGFloat imageCentreX = rectWidth/2;
     CGFloat imageCentreY = rectHeight/2;
-   
     CGFloat radius = rectWidth/2;
     CGContextBeginPath (context);
     CGContextAddArc (context, imageCentreX, imageCentreY, radius, 0, 2*M_PI, 0);
     CGContextClosePath (context);
     CGContextClip (context);
-    
-   
     CGContextScaleCTM (context, scaleFactorX, scaleFactorY);
-    
     CGRect myRect = CGRectMake(0, 0, imageWidth, imageHeight);
     [image drawInRect:myRect];
-    
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
     return newImage;
 }
 @end
